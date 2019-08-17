@@ -1,2 +1,30 @@
 # TotalQuestXP
-Addon for World of Warcraft Classic
+
+This is an addon for **World of Warcraft Classic** (set to release on August 27. 2019).
+
+### NOTICE: Make sure the folder is named "TotalQuestXP" when installing the addon.
+
+This addon adds a status bar that summarizes your total experience quest reward, from all currently completable quests in your quest log. 
+The bar keeps track of your current and required experience and will show you when you have saved up enough experience to go back to your quest hub to ding.
+
+Hopefully, the addon lets you decide whether or not you need to a grind a few extra mobs before returning to town, to avoid running back and forth.
+
+### Commands
+
+  **/tqxp unlock**   Unlock the frame and enable drag.
+
+    - Hold LEFT mouse button (on the frame) to move.
+
+    - Hold RIGHT mouse button (on the frame) to resize.
+                         
+  **/tqxp lock**     Lock the frame and disable drag.
+
+  **/tqxp reset**    Resets the position and size of the frame.
+
+  **/tqxp help**     Print help message.
+
+### Screenshots
+
+![Example 1](https://i.imgur.com/gALVVZy.jpg)
+
+![Example 2](https://i.imgur.com/dMwLlhh.jpg)
