@@ -17,6 +17,8 @@ Hopefully, the addon lets you decide whether or not you need to a grind a few ex
 
 ### Commands
 
+  **/tqxp options**  Opens the Addon page for the addon.
+
   **/tqxp unlock**   Unlock the frame and enable drag.
 
     - Hold LEFT mouse button (on the frame) to move.
@@ -34,3 +36,7 @@ Hopefully, the addon lets you decide whether or not you need to a grind a few ex
 ![Example 1](https://i.imgur.com/gALVVZy.jpg)
 
 ![Example 2](https://i.imgur.com/dMwLlhh.jpg)
+
+![Example 3](https://www.warcrafttavern.com/wp-content/uploads/2019/08/tqxp-settings.jpg)
+
+
