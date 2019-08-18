@@ -7,6 +7,7 @@ local DEFAULT_BAR_HEIGHT = 20
 
 local defaults = {
     ["includeSpeakQuests"] = true,
+    ["showProjectedRewards"] = true,
     ["barWidth"] = DEFAULT_BAR_WIDTH,
     ["barHeight"] = DEFAULT_BAR_HEIGHT,
     ["barLeft"] = GetScreenWidth() - 3*DEFAULT_BAR_WIDTH,
@@ -75,12 +76,16 @@ function LoadOptions()
 end
 
 function CreateTotalQuestXpBar()
-   -- POSITION, SIZE
-    totalQuestXpBar:ClearAllPoints()
 
+   -- POSITION, SIZE
    totalQuestXpBar:SetWidth(TotalQuestXP_Options.barWidth)
    totalQuestXpBar:SetHeight(TotalQuestXP_Options.barHeight)
-   totalQuestXpBar:SetPoint("TOPLEFT", UIParent, "TOPLEFT", TotalQuestXP_Options.barLeft, TotalQuestXP_Options.barTop)
+
+   if (not totalQuestXpBar:IsUserPlaced()) then
+    totalQuestXpBar:ClearAllPoints()
+    totalQuestXpBar:SetPoint("TOPLEFT", UIParent, "TOPLEFT", TotalQuestXP_Options.barLeft, TotalQuestXP_Options.barTop)
+   end
+   
    totalQuestXpBar:SetFrameLevel(1)
 
     -- DRAGGING
@@ -150,14 +155,16 @@ function EvaluateQuestLog()
     end
 
     -- DETERMINE PROJECTED REWARDS
-    for key,quest in pairs(rewards) do
-        if (quest.completed) then
-            if (not projectedRewards[quest.title] == nil) then
-                projectedRewards[quest.title]:Hide()
-            end
-        else
-            if (projectedRewards[quest.title] == nil) then
-                projectedRewards[quest.title] = CreateStatusbarForProjectedQuest(quest, xpSum)
+    if (TotalQuestXP_Options.showProjectedRewards) then
+        for key,quest in pairs(rewards) do
+            if (quest.completed) then
+                if (not projectedRewards[quest.title] == nil) then
+                    projectedRewards[quest.title]:Hide()
+                end
+            else
+                if (projectedRewards[quest.title] == nil) then
+                    projectedRewards[quest.title] = CreateStatusbarForProjectedQuest(quest, xpSum)
+                end
             end
         end
     end
@@ -417,6 +424,13 @@ function TotalQuestXPRoot:CreateGUI(name, parent)
     content.includeSpeakQuests = includeSpeakQuests
     includeSpeakQuests:SetScript("OnClick", includeSpeakQuestsChecked)
 
+    -- INCLUDE "SPEAK WITH" QUESTS IN THE TOTAL REWARD
+    local showProjectedRewards = MakeCheckbox(nil, content, "Check to show a green bar that indicates the potential / projected / incomming XP rewards from your active (but not yet completed) quests.")
+    showProjectedRewards.label:SetText("Show Projected XP Rewards")
+    showProjectedRewards:SetPoint("TOPLEFT", 10, -60)
+    content.showProjectedRewards = showProjectedRewards
+    showProjectedRewards:SetScript("OnClick", showProjectedRewardsChecked)
+
     -- BAR WIDTH
     local barWidth = MakeEditBox(nil, content, "Bar Width", 75, 25, barWidthOnEnter)
     barWidth:SetPoint("TOPLEFT", 250, -30)
@@ -457,7 +471,12 @@ function TotalQuestXPRoot:CreateGUI(name, parent)
 end
 
 function includeSpeakQuestsChecked(self)
-    TotalQuestXP_Options.includeSpeakQuests = not TotalQuestXP_Options.includeSpeakQuests
+    TotalQuestXP_Options.includeSpeakQuests = self:GetChecked()
+    Init()
+end
+
+function showProjectedRewardsChecked(self)
+    TotalQuestXP_Options.showProjectedRewards = self:GetChecked()
     Init()
 end
 
