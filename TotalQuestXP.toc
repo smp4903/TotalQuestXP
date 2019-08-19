@@ -7,3 +7,9 @@
 ## SavedVariablesPerCharacter: TotalQuestXP_Options
 
 TotalQuestXP.lua
+
+Modules\SlashCommands.lua
+Modules\OptionsPanel.lua
+
+Dependencies\UIFactory.lua
+Dependencies\AddonUtils.lua
