@@ -386,13 +386,21 @@ function SlashCmdList.FSR(msg, editbox)
 end
 
 function UpdateOptionValues(content)
-    content.includeSpeakQuests:SetChecked(TotalQuestXP_Options.includeSpeakQuests)
-    
-    content.barWidth:SetText(tostring(TotalQuestXP_Options.barWidth))
-    content.barHeight:SetText(tostring(TotalQuestXP_Options.barHeight))
-    
-    content.barWidth:SetText(tostring(TotalQuestXP_Options.barWidth))
-    content.barHeight:SetText(tostring(TotalQuestXP_Options.barHeight))
+    if (content.includeSpeakQuests) then
+        content.includeSpeakQuests:SetChecked(TotalQuestXP_Options.includeSpeakQuests == true)
+    end
+
+    if (content.barWidth) then
+        content.barWidth:SetText(tostring(TotalQuestXP_Options.barWidth))
+    end
+
+    if (content.barHeight) then
+        content.barHeight:SetText(tostring(TotalQuestXP_Options.barHeight))
+    end
+
+    if (content.barWidth) then
+        content.barWidth:SetText(tostring(TotalQuestXP_Options.barWidth))
+    end
 end
 
 function TotalQuestXPRoot:CreateGUI(name, parent)
@@ -445,22 +453,18 @@ function TotalQuestXPRoot:CreateGUI(name, parent)
 
     -- LOCK / UNLOCK BUTTON
     local toggleLockText = (unlocked and "Lock" or "Unlock")
-    local toggleLock = MakeButton("ResetButton", content, 60, 20, toggleLockText, 14, MakeColor(1,1,1,1), 
-        function(self) 
-            if (unlocked) then 
-                lock() 
-                self:SetText("Unlock")
-            else 
-                unlock() 
-                self:SetText("Lock")
-            end 
-        end
-    )
+    local toggleLock = MakeButton("LockButton", content, 60, 20, toggleLockText, 14, MakeColor(1,1,1,1), lockToggled)
     toggleLock:SetPoint("TOPLEFT", 10, -120)
     content.toggleLock = toggleLock
 
     -- RESET BUTTON
-    local resetButton = MakeButton("ResetButton", content, 60, 20, "Reset", 14, MakeColor(1,1,1,1), function(self) reset() end)
+    local resetButton = MakeButton("ResetButton", content, 60, 20, "Reset", 14, MakeColor(1,1,1,1), function(self) 
+        reset()
+         
+        if (unlocked) then
+            lockToggled(toggleLock)
+        end
+    end)
     resetButton:SetPoint("TOPRIGHT", -30, -120)
     content.resetButton = resetButton
 
@@ -468,6 +472,16 @@ function TotalQuestXPRoot:CreateGUI(name, parent)
     frame:SetScript("OnShow", function(self) UpdateOptionValues(content) end)
 
     return frame
+end
+
+function lockToggled(self)
+    if (unlocked) then 
+        lock() 
+        self:SetText("Unlock")
+    else 
+        unlock() 
+        self:SetText("Lock")
+    end 
 end
 
 function includeSpeakQuestsChecked(self)
