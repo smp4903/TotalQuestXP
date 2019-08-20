@@ -180,14 +180,12 @@ function TotalQuestXP:CreateStatusbarForProjectedQuest(quest, xpSum)
         return nil
     end
 
-    -- MAPPING MAXES
+    -- MAPPING 
     local totalWidth = TotalQuestXP_Options.barWidth
-    local projectionMax = TotalQuestXP:GetRemainingXP() - xpSum
-
-    -- MAPPING PART
-    local completedWidth = xpSum / TotalQuestXP:GetRemainingXP() * totalWidth
-    local width = quest.reward / projectionMax * totalWidth - completedWidth
-    local left = previousProjectionsLeftOffset + completedWidth
+    local maxXp = TotalQuestXP:GetRemainingXP()
+    local completedWidth = AddonUtils:map(xpSum, 0, maxXp, 0, totalWidth)
+    local width = AddonUtils:map(quest.reward, 0, maxXp, 0, totalWidth)
+    local left = completedWidth + previousProjectionsLeftOffset
     local isLast = missingXp - quest.reward <= 0
 
     local statusbar = CreateFrame("StatusBar", ADDON_NAME..quest.title, totalQuestXpBar) 
@@ -201,8 +199,8 @@ function TotalQuestXP:CreateStatusbarForProjectedQuest(quest, xpSum)
     statusbar:SetHeight(TotalQuestXP_Options.barHeight)
 
     if (isLast) then
-        local missingXpWidth = missingXp / projectionMax * (totalWidth - completedWidth)
-        statusbar:SetWidth(missingXpWidth)
+        width = AddonUtils:map(missingXp, 0, maxXp, 0, totalWidth)
+        statusbar:SetWidth(width)
         statusbar:SetPoint("TOPLEFT", totalQuestXpBar, left, 0)
     else
         statusbar:SetWidth(width)
