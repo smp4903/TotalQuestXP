@@ -29,15 +29,23 @@ TotalQuestXPRoot:RegisterEvent("PLAYER_ENTERING_WORLD")
 TotalQuestXPRoot:RegisterEvent("QUEST_LOG_UPDATE")
 TotalQuestXPRoot:RegisterEvent("PLAYER_XP_UPDATE")
 TotalQuestXPRoot:RegisterEvent("PLAYER_LOGIN")
+TotalQuestXPRoot:RegisterEvent("QUEST_COMPLETE")
+TotalQuestXPRoot:RegisterEvent("QUEST_FINISHED") 
 
-TotalQuestXPRoot:SetScript("OnEvent", function(self, event, arg1, ...) TotalQuestXP:onEvent(self, event, arg1, ...) end);
+TotalQuestXPRoot:SetScript("OnEvent", function(self, event, arg1, ...) 
+    TotalQuestXP:onEvent(self, event, arg1, ...) 
+end);
 
 function TotalQuestXP:onEvent(self, event, arg1, ...)
+
     if event == "ADDON_LOADED" then
         if arg1 == ADDON_NAME then 
-            TotalQuestXP:PrintHelp()
-            TotalQuestXP:Init()
+
         end
+    end
+
+    if event == "QUEST_COMPLETE" then
+        TotalQuestXP:Update()
     end
 
     if event == "QUEST_LOG_UPDATE" then
@@ -49,8 +57,10 @@ function TotalQuestXP:onEvent(self, event, arg1, ...)
     end
 
     if event == "PLAYER_ENTERING_WORLD" then
-        TotalQuestXP_Options.unlocked = false
+        TotalQuestXP:Init()
         TotalQuestXP:Update()
+        TotalQuestXP:PrintHelp()
+
     end
 
 end
@@ -68,6 +78,8 @@ function TotalQuestXP:LoadOptions()
             TotalQuestXP_Options[key] = value
         end
     end
+
+    TotalQuestXP_Options.unlocked = false
 end
 
 function TotalQuestXP:Update() 
@@ -232,6 +244,7 @@ function TotalQuestXP:GetQuestRewards()
     local questCount = GetNumQuestLogEntries()
 
     local rewards = {}
+    local old = GetQuestLogSelection()
 
     for i = 1,questCount do
         SelectQuestLogEntry(i)
@@ -239,12 +252,12 @@ function TotalQuestXP:GetQuestRewards()
         local title, level, suggestedGroup, isHeader, isCollapsed, isComplete, frequency, questID, startEvent, displayQuestID, isOnMap, hasLocalPOI, isTask, isStory = GetQuestLogTitle(i);
         local questDescription, questObjectives = GetQuestLogQuestText();
 
-        if (not isHeader) then 
+        if (not isHeader) and questID ~= nil and questID > 0 then 
             local speakQuest = TotalQuestXP_Options.includeSpeakQuests and string.match(string.lower(questObjectives), "speak with")
             
             local quest = {
                 title = title,
-                reward = GetQuestLogRewardXP(),
+                reward = GetRewardXP(),
                 completed = isComplete == 1 or speakQuest
             }
 
