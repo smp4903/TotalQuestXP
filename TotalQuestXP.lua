@@ -2,10 +2,13 @@
 local ADDON_NAME = "TotalQuestXP"
 TotalQuestXP = {} 
 
+local questCache = {}
+
 local DEFAULT_BAR_WIDTH = 200
 local DEFAULT_BAR_HEIGHT = 20
 
 local defaults = {
+    ["cache"] = {},
     ["unlocked"] = false,
     ["includeSpeakQuests"] = true,
     ["showProjectedRewards"] = true,
@@ -24,13 +27,18 @@ local missingXp = 0
 local xpBarFull = false
 
 -- REGISTER EVENT LISTENERS
-TotalQuestXPRoot:RegisterEvent("ADDON_LOADED")
 TotalQuestXPRoot:RegisterEvent("PLAYER_ENTERING_WORLD")
 TotalQuestXPRoot:RegisterEvent("QUEST_LOG_UPDATE")
 TotalQuestXPRoot:RegisterEvent("PLAYER_XP_UPDATE")
 TotalQuestXPRoot:RegisterEvent("PLAYER_LOGIN")
 TotalQuestXPRoot:RegisterEvent("QUEST_COMPLETE")
 TotalQuestXPRoot:RegisterEvent("QUEST_FINISHED") 
+TotalQuestXPRoot:RegisterEvent("QUEST_DETAIL") 
+TotalQuestXPRoot:RegisterEvent("QUEST_ACCEPTED") 
+
+TotalQuestXPRoot:RegisterEvent("QUEST_DETAIL")
+TotalQuestXPRoot:RegisterEvent("QUEST_ACCEPTED")
+TotalQuestXPRoot:RegisterEvent("QUEST_REMOVED")
 
 TotalQuestXPRoot:SetScript("OnEvent", function(self, event, arg1, ...) 
     TotalQuestXP:onEvent(self, event, arg1, ...) 
@@ -38,14 +46,21 @@ end);
 
 function TotalQuestXP:onEvent(self, event, arg1, ...)
 
-    if event == "ADDON_LOADED" then
-        if arg1 == ADDON_NAME then 
+    if event == "QUEST_DETAIL" then
+        TotalQuestXP:OnQuestDetails(arg1, ...)
+    end
 
-        end
+    if event == "QUEST_ACCEPTED" then
+        TotalQuestXP:OnQuestAccepted(arg1, ...)
+        TotalQuestXP:Update()
     end
 
     if event == "QUEST_COMPLETE" then
         TotalQuestXP:Update()
+    end
+
+    if event == "QUEST_REMOVED" then
+        TotalQuestXP:OnQuestRemoved(arg1, ...)
     end
 
     if event == "QUEST_LOG_UPDATE" then
@@ -60,7 +75,6 @@ function TotalQuestXP:onEvent(self, event, arg1, ...)
         TotalQuestXP:Init()
         TotalQuestXP:Update()
         TotalQuestXP:PrintHelp()
-
     end
 
 end
@@ -195,8 +209,10 @@ function TotalQuestXP:CreateStatusbarForProjectedQuest(quest, xpSum)
     -- MAPPING 
     local totalWidth = TotalQuestXP_Options.barWidth
     local maxXp = TotalQuestXP:GetRemainingXP()
+    
     local completedWidth = AddonUtils:map(xpSum, 0, maxXp, 0, totalWidth)
     local width = AddonUtils:map(quest.reward, 0, maxXp, 0, totalWidth)
+
     local left = completedWidth + previousProjectionsLeftOffset
     local isLast = missingXp - quest.reward <= 0
 
@@ -212,6 +228,7 @@ function TotalQuestXP:CreateStatusbarForProjectedQuest(quest, xpSum)
 
     if (isLast) then
         width = AddonUtils:map(missingXp, 0, maxXp, 0, totalWidth)
+
         statusbar:SetWidth(width)
         statusbar:SetPoint("TOPLEFT", totalQuestXpBar, left, 0)
     else
@@ -227,7 +244,7 @@ function TotalQuestXP:CreateStatusbarForProjectedQuest(quest, xpSum)
     statusbar:SetStatusBarTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
     statusbar:GetStatusBarTexture():SetHorizTile(false)
     statusbar:GetStatusBarTexture():SetVertTile(false)
-    statusbar:SetStatusBarColor(0, 1, 0, 0.4)
+    statusbar:SetStatusBarColor(0, 0, 1, 0.3)
 
     statusbar:Show()
 
@@ -252,14 +269,18 @@ function TotalQuestXP:GetQuestRewards()
 
         if (not isHeader) and questID ~= nil and questID > 0 then 
             local speakQuest = TotalQuestXP_Options.includeSpeakQuests and string.match(string.lower(questObjectives), "speak with")
-            
-            local quest = {
-                title = title,
-                reward = GetRewardXP(),
-                completed = isComplete == 1 or speakQuest
-            }
 
-            table.insert(rewards, quest)
+            local cachedQuest = TotalQuestXP_Options.cache[questID]
+
+            if cachedQuest then
+                local quest = {
+                    title = title,
+                    reward = cachedQuest.rewardXP,
+                    completed = isComplete == 1 or speakQuest
+                }
+        
+                table.insert(rewards, quest)
+            end
         end
 
     end
@@ -363,11 +384,30 @@ end
 function TotalQuestXP:PrintHelp() 
     print("# Total Quest XP")
     print("#    - /tqxp options      Opens the Addon page for the addon")
-    print("#    - /tqxp unlock (U)   Unlock the frame and enable drag.")
-    print("#                         - Hold LEFT mouse button (on the frame) to move.")
-    print("#                         - Hold RIGHT mouse button (on the frame) to resize.")
-    print("#    - /tqxp lock (L)     Lock the frame and disable drag.")
-    print("#    - /tqxp reset        Resets all settings.")
-    print("#    - /tqxp help         Print this help message.")
     print("# Source: https://github.com/smp4903/TotalQuestXP")
+end
+
+-- DB HANDLING
+function TotalQuestXP:OnQuestDetails()
+    local questID = GetQuestID()
+
+    if questID > 0 then
+        questCache[questID] = {
+            rewardXP = GetRewardXP()
+        }
+    end
+end
+
+function TotalQuestXP:OnQuestAccepted(questIndex, questID)    
+    if questCache[questID] then
+        TotalQuestXP_Options.cache[questID] = questCache[questID]
+    else
+        TotalQuestXP_Options.cache[questID] = {
+            rewardXP = GetRewardXP()
+        }
+    end
+end
+
+function TotalQuestXP:OnQuestRemoved(questID)
+    TotalQuestXP_Options.cache[questID] = nil
 end
