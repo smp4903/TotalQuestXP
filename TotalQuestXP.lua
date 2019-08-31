@@ -256,10 +256,10 @@ end
 
 -- GETTERS
 function TotalQuestXP:GetQuestRewards()
+    local oldQuest = GetQuestLogSelection()
     local questCount = GetNumQuestLogEntries()
 
     local rewards = {}
-    local old = GetQuestLogSelection()
 
     for i = 1,questCount do
         SelectQuestLogEntry(i)
@@ -284,6 +284,8 @@ function TotalQuestXP:GetQuestRewards()
         end
 
     end
+    
+    SelectQuestLogEntry(oldQuest)
 
     return rewards
 end
