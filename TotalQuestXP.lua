@@ -27,6 +27,7 @@ local missingXp = 0
 local xpBarFull = false
 
 -- REGISTER EVENT LISTENERS
+TotalQuestXPRoot:RegisterEvent("ADDON_LOADED")
 TotalQuestXPRoot:RegisterEvent("PLAYER_ENTERING_WORLD")
 TotalQuestXPRoot:RegisterEvent("QUEST_LOG_UPDATE")
 TotalQuestXPRoot:RegisterEvent("PLAYER_XP_UPDATE")
@@ -45,6 +46,12 @@ TotalQuestXPRoot:SetScript("OnEvent", function(self, event, arg1, ...)
 end);
 
 function TotalQuestXP:onEvent(self, event, arg1, ...)
+
+    if event == "ADDON_LOADED" then
+        if arg1 == ADDON_NAME then
+            TotalQuestXP:PrintHelp()
+        end
+    end
 
     if event == "QUEST_DETAIL" then
         TotalQuestXP:OnQuestDetails(arg1, ...)
@@ -74,7 +81,6 @@ function TotalQuestXP:onEvent(self, event, arg1, ...)
     if event == "PLAYER_ENTERING_WORLD" then
         TotalQuestXP:Init()
         TotalQuestXP:Update()
-        TotalQuestXP:PrintHelp()
     end
 
 end
@@ -284,7 +290,7 @@ function TotalQuestXP:GetQuestRewards()
         end
 
     end
-    
+
     SelectQuestLogEntry(oldQuest)
 
     return rewards
@@ -384,9 +390,8 @@ function TotalQuestXP:reset()
 end
 
 function TotalQuestXP:PrintHelp() 
-    print("# Total Quest XP")
-    print("#    - /tqxp options      Opens the Addon page for the addon")
-    print("# Source: https://github.com/smp4903/TotalQuestXP")
+    local colorHex = "9575cd"
+    print("|cff"..colorHex.."TotalQuestXP loaded - /tqxp")
 end
 
 -- DB HANDLING

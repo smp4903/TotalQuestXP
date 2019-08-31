@@ -10,20 +10,21 @@ function SlashCmdList.TQXP(msg, editbox)
 
     if cmd == "unlock" or cmd == "u"  then
         print(ADDON_NAME.." - UNLOCKED.")
-        unlock()
+        TotalQuestXP:unlock()
     end
 
     if cmd == "lock" or cmd == "l" then
         print(ADDON_NAME.." - LOCKED.")
-        lock()
+        TotalQuestXP:lock()
     end
 
     if cmd == "reset" then
         print(ADDON_NAME.." - RESET.")
-        reset()
+        TotalQuestXP:reset()
     end
 
     if cmd == "" or cmd == "help" then
-        PrintHelp()  
+        TotalQuestXP:PrintHelp()
+        InterfaceOptionsFrame_OpenToCategory(TotalQuestXPRoot.optionsPanel)
     end
 end
