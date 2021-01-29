@@ -1,7 +1,7 @@
-## Interface: 11304
+## Interface: 11306
 ## Title: Total Quest XP (WoW Classic)
 ## Notes: Track the amount of XP you're set to gain at turn-in.
-## Version: 1.7
+## Version: 1.8
 ## DefaultState: enabled
 ## Author: CassiniEU @ Twitch.com
 ## SavedVariablesPerCharacter: TotalQuestXP_Options
