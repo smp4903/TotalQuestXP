@@ -26,7 +26,7 @@ function UIFactory:MakeText(parent, text, size)
 end
 
 function UIFactory:MakeEditBox(name, parent, title, w, h, enter_func)
-    local edit_box_obj = CreateFrame("EditBox", name, parent)
+    local edit_box_obj = CreateFrame("EditBox", name, parent, BackdropTemplateMixin and "BackdropTemplate")
     edit_box_obj.title_text = UIFactory:MakeText(edit_box_obj, title, 12)
     edit_box_obj.title_text:SetPoint("TOP", 0, 12)
     edit_box_obj:SetBackdrop({
